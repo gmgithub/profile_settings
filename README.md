@@ -1,5 +1,8 @@
 # profile_settings
-stash away commonly used profiles for
+Stash away commonly used profiles for:
+```bash
 vim
 bash
 python
+
+```
