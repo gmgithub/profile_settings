@@ -1,0 +1,202 @@
+source ~/.ssh/secrets
+alias vlc='/Applications/VLC.app/Contents/MacOS/VLC'
+alias run-mysql='docker run --detach --name mpm-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password   mysql:5.7'
+alias go-incubator='ssh incubator'
+alias reap_dockers='docker ps -a -f status=exited --format "{{.ID}}" | xargs -I {} docker rm {} '
+alias cd-scripts='cd /Users/gmathai/workspace/EA/cfgpub/scripts/'
+
+
+
+alias vnc-pi='open vnc://10.14.133.158:5900'
+
+
+#alias watch_test="workon generalPy3; awslogs get --profile preprodcw --aws-region us-east-1 /stargate/config-api-test ALL -w"
+#alias watch_int="workon generalPy3; awslogs get --profile preprodcw --aws-region us-east-1 /stargate/config-api-int ALL -w"
+
+
+alias go-react='cd /Users/gmathai/workspace/PersonalProjects/tryreact/udilla-learn-react'
+
+alias ls='ls -F -G'
+
+alias lrepo='pushd `pwd` ; mkdir -p /tmp/repos/sample-localization/; cd /tmp/repos/sample-localization/ && git init; popd'
+
+alias gitlog='git log --graph --oneline --all'
+
+alias run-dev-cfp='cd /Users/gmathai/workspace/EA/cfgpub/config-publish-api/launchers/marketplace-manager-launcher/target/  && java -Dspring.profiles.active="default,cfgpub,console,console-dev" -jar  marketplace-manager.jar'
+
+alias run-jaeger='docker run -d -p 6831:6831/udp -p 16686:16686 jaegertracing/all-in-one:latest'
+
+alias restart-dnsmasq=' sudo launchctl stop homebrew.mxcl.dnsmasq;  sudo launchctl start homebrew.mxcl.dnsmasq'
+
+#alias create-mpm-repos='pushd `pwd`; cd /Users/gmathai/workspace/EA/cfgpub/config-publish-api/docker/cfgpub_localdev/docker && sh ./create_mpm_repos.sh; popd'
+alias create-mpm-repos='pushd `pwd`; cd /Users/gmathai/workspace/EA/cfgpub/config-publish-api/docker/cfgpub_localenv && sh ./create_mpm_repos.sh; popd'
+
+function watch_int(){
+set -x
+if [[ "X$1" == "X" ]]
+then
+	saw watch --profile preprodcw --region us-east-1   /stargate/config-api-int
+
+else
+	start_time=$1
+	if [[ "X$2" == "X" ]]
+	then
+		saw get  --profile preprodcw --region us-east-1   /stargate/config-api-int --start $start_time
+	else
+		stop_time=$2
+		saw get  --profile preprodcw --region us-east-1   /stargate/config-api-int --start $start_time --stop $stop_time
+	fi
+fi
+set +x
+}
+
+function watch_prod(){
+set -x
+if [[ "X$1" == "X" ]]
+then
+	saw watch --profile prodcw --region us-east-1   /stargate/config-api-prod
+
+else
+	start_time=$1
+	if [[ "X$2" == "X" ]]
+	then
+		saw get  --profile prodcw --region us-east-1   /stargate/config-api-prod --start $start_time
+	else
+		stop_time=$2
+		saw get  --profile prodcw --region us-east-1   /stargate/config-api-prod --start $start_time --stop $stop_time
+	fi
+fi
+set +x
+}
+
+function watch_stage(){
+set -x
+if [[ "X$1" == "X" ]]
+then
+	saw watch --profile prodcw --region us-east-1   /stargate/config-api-stage
+
+else
+	start_time=$1
+	if [[ "X$2" == "X" ]]
+	then
+		saw get  --profile prodcw --region us-east-1   /stargate/config-api-stage --start $start_time
+	else
+		stop_time=$2
+		saw get  --profile prodcw --region us-east-1   /stargate/config-api-stage --start $start_time --stop $stop_time
+	fi
+fi
+set +x
+}
+function watch_dev(){
+set -x
+if [[ "X$1" == "X" ]]
+then
+	saw watch --profile preprodcw --region us-east-1   /stargate/config-api-dev
+
+else
+	start_time=$1
+	if [[ "X$2" == "X" ]]
+	then
+		saw get  --profile preprodcw --region us-east-1   /stargate/config-api-dev --start $start_time
+	else
+		stop_time=$2
+		saw get  --profile preprodcw --region us-east-1   /stargate/config-api-dev --start $start_time --stop $stop_time
+	fi
+fi
+set +x
+}
+
+function watch_test(){
+set -x
+if [[ "X$1" == "X" ]]
+then
+	saw watch --profile preprodcw --region us-east-1   /stargate/config-api-test
+
+else
+	start_time=$1
+	if [[ "X$2" == "X" ]]
+	then
+		saw get  --profile preprodcw --region us-east-1   /stargate/config-api-test --start $start_time
+	else
+		stop_time=$2
+		saw get  --profile preprodcw --region us-east-1   /stargate/config-api-test --start $start_time --stop $stop_time
+	fi
+fi
+set +x
+}
+
+
+function to_dsm(){
+	set -x
+	src=$1
+	dest=$2
+	rsync -a --progress --stats --human-readable "${src}" "${dest}" 
+	set +x
+}
+
+function create-mpm-dockers(){
+	set -x
+	docker inspect -f '{{.State.Running}}' mpm-mysql || \
+		docker run --rm --name mpm-mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=password  -d  mysql:5.7 
+	docker inspect -f '{{.State.Running}}' mpm-redis || \
+		docker run --rm --name mpm-redis -p 6379:6379 -d redis redis-server 
+	docker inspect -f '{{.State.Running}}' sgcore-mock || \
+		docker run --rm --name sgcore-mock -p 5000:5000 -v ~/sgcore_projects:/sgcore_projects -d sgcore_mock_image
+	set +x
+}
+
+alias my-youtube-dl='youtube-dl -f mp4/bestvideo+bestaudio '
+alias my-youtube-dl-merge-to-mp4='youtube-dl -f mp4/bestvideo+bestaudio --merge-output-format mp4'
+
+function run-pihole(){
+	set -x
+	local my_tz='America/Los_Angeles'
+	local my_wifi_adapter_ip=$(ifconfig en0  | grep -w inet | awk '{print $2}')
+docker run --rm --name pihole -e ServerIP=${my_wifi_adapter_ip} -e TZ=${my_tz} -e WEBPASSWORD=Password -e DNS1=10.253.16.5 -e DNS2=10.13.238.27 -p 80:80 -p 53:53/tcp -p 53:53/udp -p 443:443 -v ~/pihole/:/etc/pihole/ --dns=127.0.0.1  --dns=10.12.238.27 --cap-add=NET_ADMIN  pihole/pihole:latest
+	set +x
+}
+
+
+alias cd-blog='cd /Users/gmathai/workspace/PersonalProjects/BLOG/gatbyjs/notes-gatsbyjs'
+
+function ocvpn(){
+set -x
+	if [[ -z $1 ]];
+	then
+		local VPN_SRVR=eac-rvpn01.ea.com
+	else
+		local VPN_SRVR=$1
+	fi
+	echo $VPNPASS | sudo openconnect  --verbose --user=$VPNUSER --passwd-on-stdin  ${VPN_SRVR}
+set +x
+}
+function ocvpn_add_routes(){
+	set -x
+	# Compute home gateway
+	local MY_HOME_GW=$(netstat -nr -f inet | egrep -i '^default[ ]+.*en[0-9]' | awk '{print $2}')
+
+	# Compute EA gateway IP
+	local MY_EA_GW=$(netstat -nr -f inet | egrep -i '^default[ ]+.*utun' | awk '{print $2}')
+
+	# Check if there is a path for the 10.* subnet via utun device
+	if [[ ! $(netstat -nr -f inet | egrep -i '^10.* .*utun') ]]
+	then
+		echo "Run openconnect and establish the VPN connection before running these commands"
+	else
+		# Compute TUN device
+		local TUN=$(netstat -nr -f inet | egrep -i '^default[ ]+.*utun' | awk '{print $6}')
+
+		sudo route -nv add -net 10 -interface $TUN
+
+ 		for domain in ea.okta.com login.work.ea.com fit.console.ea.com nexus.sdlc.marketplace.ea.com;
+		do
+			for ip in $(host $domain | awk '/has address/ {print $4}'); 
+			do 
+				sudo route -nv add -net ${ip}/32 ${MY_EA_GW} 
+			done
+		done
+
+		sudo route change default ${MY_HOME_GW}
+	fi
+	set +x
+}
